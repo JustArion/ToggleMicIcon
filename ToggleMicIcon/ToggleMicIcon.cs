@@ -16,7 +16,7 @@ namespace ToggleMicIcon
         public const string DownloadLink = "https://github.com/Arion-Kun/ToggleMicIcon/releases";
         public const string Name = "ToggleMicIcon";
 
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.1";
     }
     public class ToggleMicIconClass : MelonMod 
     {
