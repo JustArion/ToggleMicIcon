@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using MelonLoader;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using MelonLoader;
+using System;
+using Object = UnityEngine.Object;
 
 namespace ToggleMicIcon
 {
@@ -16,12 +11,12 @@ namespace ToggleMicIcon
         public const string DownloadLink = "https://github.com/Arion-Kun/ToggleMicIcon/releases";
         public const string Name = "ToggleMicIcon";
 
-        public const string Version = "1.0.1";
+        public const string Version = "1.0.2";
     }
     public class ToggleMicIconClass : MelonMod 
     {
-        //Was going to do some cool volume things but someone wanted it faster so just doing .SetActive XD
         public static bool ToggleMic;
+        private static HudVoiceIndicator HudVoiceIndicator;
         public override void OnApplicationStart()
         {
             MelonPrefs.RegisterCategory("ToggleMicIcon", "Toggle Mic Icon");
@@ -32,6 +27,7 @@ namespace ToggleMicIcon
 
         public override void VRChat_OnUiManagerInit()
         {
+            HudVoiceIndicator = Object.FindObjectOfType<HudVoiceIndicator>();
             ToggleMethod(ToggleMic);
         }
         public override void OnModSettingsApplied()
@@ -42,9 +38,11 @@ namespace ToggleMicIcon
         public static void ToggleMethod(bool value)
         {
             try
-            {
-                GameObject MicIcon = GameObject.Find("/UserInterface/UnscaledUI/HudContent/Hud/VoiceDotParent").gameObject;
-                MicIcon.SetActive(!value);
+            { 
+                HudVoiceIndicator.enabled = !value;
+                if (!value) return;
+                HudVoiceIndicator.field_Private_Image_0.enabled = false; //Credits to Psychloor
+                HudVoiceIndicator.field_Private_Image_1.enabled = false;
             }
             catch (Exception e)
             { MelonLogger.LogError("ToggleMethod Error: " + e); }
