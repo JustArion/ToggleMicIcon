@@ -25,7 +25,7 @@ namespace ToggleMicIcon
         public override void OnApplicationStart()
         {
             MelonPrefs.RegisterCategory("ToggleMicIcon", "Toggle Mic Icon");
-            MelonPrefs.RegisterBool("ToggleMicIcon", "DisableMic", false, "Disable Microphone");
+            MelonPrefs.RegisterBool("ToggleMicIcon", "DisableMic", false, "Disable Microphone Icon");
             ToggleMic = MelonPrefs.GetBool("ToggleMicIcon", "DisableMic");
             MelonLogger.Log("Settings can be configured in UserData\\modprefs.ini or through UIExpansionKit");
         }
