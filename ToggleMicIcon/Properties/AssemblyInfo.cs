@@ -17,8 +17,8 @@ using BuildInfo = ToggleMicIcon.BuildInfo;
 
 [assembly: Guid("c7f7b303-176a-469c-9c8c-38ccf2ac6f96")]
 
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion(BuildInfo.Version)]
+[assembly: AssemblyFileVersion(BuildInfo.Version)]
 
 [assembly: MelonInfo(typeof(ToggleMicIconClass), BuildInfo.Name, BuildInfo.Version, BuildInfo.Author, BuildInfo.DownloadLink)]
 [assembly: MelonGame("VRChat", "VRChat")]
