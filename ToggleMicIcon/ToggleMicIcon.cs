@@ -4,7 +4,7 @@ using Object = UnityEngine.Object;
 
 namespace ToggleMicIcon
 {
-    public static class BuildInfo
+    public sealed class BuildInfo
     {
         public const string Author = "arion#1223";
         public const string Company = null;
@@ -13,9 +13,9 @@ namespace ToggleMicIcon
 
         public const string Version = "1.0.2";
     }
-    public class ToggleMicIconClass : MelonMod 
+    public sealed class ToggleMicIconClass : MelonMod 
     {
-        public static bool ToggleMic;
+        private static bool ToggleMic;
         private static HudVoiceIndicator HudVoiceIndicator;
         public override void OnApplicationStart()
         {
@@ -35,7 +35,7 @@ namespace ToggleMicIcon
             ToggleMic = MelonPrefs.GetBool("ToggleMicIcon", "DisableMic");
             ToggleMethod(ToggleMic);
         }
-        public static void ToggleMethod(bool value)
+        private void ToggleMethod(bool value)
         {
             try
             { 
