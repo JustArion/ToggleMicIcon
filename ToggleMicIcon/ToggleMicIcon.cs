@@ -13,7 +13,7 @@ namespace ToggleMicIcon
 
         public const string Version = "1.0.2";
     }
-    public sealed class ToggleMicIconClass : MelonMod 
+    internal sealed class ToggleMicIconClass : MelonMod 
     {
         private static bool ToggleMic;
         private static HudVoiceIndicator HudVoiceIndicator;
