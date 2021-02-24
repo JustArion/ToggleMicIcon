@@ -2,13 +2,13 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using ToggleMicIcon;
-using BuildInfo = ToggleMicIcon.BuildInfo;
+using static ToggleMicIcon.BuildInfo;
 
-[assembly: AssemblyTitle(BuildInfo.Name)]
+[assembly: AssemblyTitle(Name)]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany(BuildInfo.Company)]
-[assembly: AssemblyProduct(BuildInfo.Name)]
+[assembly: AssemblyCompany(Company)]
+[assembly: AssemblyProduct(Name)]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -17,10 +17,10 @@ using BuildInfo = ToggleMicIcon.BuildInfo;
 
 [assembly: Guid("c7f7b303-176a-469c-9c8c-38ccf2ac6f96")]
 
-[assembly: AssemblyVersion(BuildInfo.Version)]
-[assembly: AssemblyFileVersion(BuildInfo.Version)]
+[assembly: AssemblyVersion(Version)]
+[assembly: AssemblyFileVersion(Version)]
 
-[assembly: MelonInfo(typeof(ToggleMicIconClass), BuildInfo.Name, BuildInfo.Version, BuildInfo.Author, BuildInfo.DownloadLink)]
+[assembly: MelonInfo(typeof(ToggleMicIconClass), Name, Version, Author, DownloadLink)]
 [assembly: MelonGame("VRChat", "VRChat")]
 
 

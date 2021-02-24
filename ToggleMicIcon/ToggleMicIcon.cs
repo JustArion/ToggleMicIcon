@@ -5,14 +5,14 @@ using Object = UnityEngine.Object;
 
 namespace ToggleMicIcon
 {
-    public sealed class BuildInfo
+    internal sealed class BuildInfo
     {
-        public const string Author = "arion#1223";
-        public const string Company = null;
-        public const string DownloadLink = "https://github.com/Arion-Kun/ToggleMicIcon/releases";
-        public const string Name = "ToggleMicIcon";
+        internal const string Author = "arion#1223";
+        internal const string Company = null;
+        internal const string DownloadLink = "https://github.com/Arion-Kun/ToggleMicIcon/releases";
+        internal const string Name = "ToggleMicIcon";
 
-        public const string Version = "1.0.3";
+        internal const string Version = "1.0.3";
     }
     internal sealed class ToggleMicIconClass : MelonMod 
     {
@@ -44,7 +44,7 @@ namespace ToggleMicIcon
             ToggleMethod(ToggleMic);
         }
 
-        private void ToggleMethod(bool value)
+        void ToggleMethod(bool value)
         {
             try
             { 
