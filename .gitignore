@@ -66,3 +66,5 @@ ToggleMicIcon/obj/Debug/ToggleMicIcon.csproj.FileListAbsolute.txt
 ToggleMicIcon/obj/Debug/ToggleMicIcon.csprojAssemblyReference.cache
 ToggleMicIcon/obj/Debug/ToggleMicIcon.dll
 ToggleMicIcon/obj/Debug/ToggleMicIcon.pdb
+*.xml
+*.iml
