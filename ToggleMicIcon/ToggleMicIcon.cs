@@ -12,7 +12,7 @@ namespace ToggleMicIcon
         internal const string DownloadLink = "https://github.com/Arion-Kun/ToggleMicIcon/releases";
         internal const string Name = "ToggleMicIcon";
 
-        internal const string Version = "1.0.3";
+        internal const string Version = "1.0.4";
     }
     internal sealed class ToggleMicIconClass : MelonMod 
     {
@@ -32,19 +32,22 @@ namespace ToggleMicIcon
             MelonLogger.Warning("or alternatively under the #finished-mods-✅ section in the VRChat Modding Group Discord.");
         }
 
+        private static bool UIManagerStarted;
         public override void VRChat_OnUiManagerInit()
         {
+            UIManagerStarted = true;
             HudVoiceIndicator = Object.FindObjectOfType<HudVoiceIndicator>();
             ToggleMethod(ToggleMic);
         }
 
         public override void OnPreferencesSaved()
         {
+            if (!UIManagerStarted) return;
             ToggleMic = MelonPreferences.GetEntryValue<bool>("ToggleMicIcon", "DisableMic");
             ToggleMethod(ToggleMic);
         }
 
-        void ToggleMethod(bool value)
+        private static void ToggleMethod(bool value)
         {
             try
             { 
