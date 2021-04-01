@@ -5,14 +5,14 @@ using Object = UnityEngine.Object;
 
 namespace ToggleMicIcon
 {
-    internal sealed class BuildInfo
+    internal static class BuildInfo
     {
         internal const string Author = "arion#1223";
         internal const string Company = null;
         internal const string DownloadLink = "https://github.com/Arion-Kun/ToggleMicIcon/releases";
         internal const string Name = "ToggleMicIcon";
 
-        internal const string Version = "1.0.4";
+        internal const string Version = "1.0.5";
     }
     internal sealed class ToggleMicIconClass : MelonMod 
     {
@@ -29,20 +29,20 @@ namespace ToggleMicIcon
             if (MelonHandler.Mods.Any(mod => mod.Info.Name == "UI Expansion Kit")) return;
             MelonLogger.Warning("'UI Expansion Kit' was not detected and could lead to a less optimal experience.");
             MelonLogger.Warning("The mod can be found on Github at: https://github.com/knah/VRCMods/releases");
-            MelonLogger.Warning("or alternatively under the #finished-mods-✅ section in the VRChat Modding Group Discord.");
+            MelonLogger.Warning("or alternatively under the #finished-mods section in the VRChat Modding Group Discord.");
         }
 
-        private static bool UIManagerStarted;
+        private static bool m_UIManagerStarted;
         public override void VRChat_OnUiManagerInit()
         {
-            UIManagerStarted = true;
+            m_UIManagerStarted = true;
             HudVoiceIndicator = Object.FindObjectOfType<HudVoiceIndicator>();
             ToggleMethod(ToggleMic);
         }
 
         public override void OnPreferencesSaved()
         {
-            if (!UIManagerStarted) return;
+            if (!m_UIManagerStarted) return;
             ToggleMic = MelonPreferences.GetEntryValue<bool>("ToggleMicIcon", "DisableMic");
             ToggleMethod(ToggleMic);
         }
