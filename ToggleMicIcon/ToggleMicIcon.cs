@@ -18,30 +18,39 @@ namespace ToggleMicIcon
     }
     internal sealed class ToggleMicIconClass : MelonMod 
     {
-        private static bool ToggleMic;
-        private static HudVoiceIndicator HudVoiceIndicator;
+        private static MelonPreferences_Entry<bool> ToggleMic;
+        private static HudVoiceIndicator cachedVoiceIndicator;
+        private static HudVoiceIndicator HudVoiceIndicator => cachedVoiceIndicator ??= Object.FindObjectOfType<HudVoiceIndicator>();
         private static Transform VoiceDot => HudVoiceIndicator.gameObject.transform.Find("VoiceDot");
         private static Transform VoiceDotDisabled => HudVoiceIndicator.gameObject.transform.Find("VoiceDotDisabled");
 
         public override void OnApplicationStart()
         {
-            MelonPreferences.CreateCategory("ToggleMicIcon", "Toggle Mic Icon");
-            MelonPreferences.CreateEntry("ToggleMicIcon", "DisableMic", false, "Disable Microphone Icon");
-            ToggleMic = MelonPreferences.GetEntryValue<bool>("ToggleMicIcon", "DisableMic");
+            var cat = MelonPreferences.CreateCategory("ToggleMicIcon", "Toggle Mic Icon");
+            ToggleMic = (MelonPreferences_Entry<bool>) cat.CreateEntry("DisableMic", false, "Disable Microphone Icon");
+            
             MelonLogger.Msg("Settings can be configured in UserData\\modprefs.ini or through 'UI Expansion Kit'");
 
-            if (MelonHandler.Mods.Any(mod => mod.Info.Name == "UI Expansion Kit" && VersionCheck(mod.Info.Version, "0.2.6")))
+            UIManager();
+
+        }
+
+        private void UIManager()
+        {
+            if (MelonHandler.Mods.Any(mod => mod.Info.Name == "UI Expansion Kit" && VersionCheck(mod.Info.Version, "0.3.0")))
             {
                 UIExpansionKit.API.ExpansionKitApi.OnUiManagerInit += () => { MelonCoroutines.Start(VRCUiManagerCoroutine()); };
+                MelonLogger.Msg("Utilizing UI Expansion Kit Event.");
             }
             else if (MelonHandler.Mods.Any(mod => mod.Info.Name == "UI Expansion Kit"))
             {
                 MelonCoroutines.Start(VRCUiManagerCoroutine());
-                return;
             }
-            UIXAdvert();
-            MelonCoroutines.Start(VRCUiManagerCoroutine());
-
+            else
+            {
+                UIXAdvert();
+                MelonCoroutines.Start(VRCUiManagerCoroutine());
+            }
         }
         private void UIXAdvert()
         {
@@ -60,26 +69,19 @@ namespace ToggleMicIcon
 
         private void UiManagerInit()
         {
-            if (typeof(VRCUiManager).GetProperties().FirstOrDefault(p => p.PropertyType == typeof(VRCUiManager)) != null)
-            {
-                m_UIManagerStarted = true;
-                ToggleMethod(ToggleMic);
-                MelonLogger.Msg("Sucessfully Initialized!");
-            }
-            if (StartedOnce) return;
-            StartedOnce = true;
-            MelonCoroutines.Start(VRCUiManagerCoroutine());
+            m_UIManagerStarted = true;
+            ToggleMethod();
+            MelonLogger.Msg("Sucessfully Initialized!");
         }
-
-        private bool StartedOnce;
+        
         private byte? CheckCount = 0;
         private IEnumerator VRCUiManagerCoroutine()
         {
             for (;;)
             {
                 while (typeof(VRCUiManager).GetProperties().FirstOrDefault(p=> p.PropertyType == typeof(VRCUiManager)) == null) yield return null;
+                if (m_UIManagerStarted) yield break;
                 m_UIManagerStarted = true;
-                HudVoiceIndicator = Object.FindObjectOfType<HudVoiceIndicator>();
                 if (HudVoiceIndicator == null)
                 {
                     CheckCount++;
@@ -97,23 +99,15 @@ namespace ToggleMicIcon
             }
         }
 
-        public override void OnPreferencesSaved()
-        {
-            if (!m_UIManagerStarted) return;
-            ToggleMic = MelonPreferences.GetEntryValue<bool>("ToggleMicIcon", "DisableMic");
-            ToggleMethod(ToggleMic);
-        }
+        public override void OnPreferencesSaved() => ToggleMethod();
 
-        private static void ToggleMethod(bool value)
+        private static void ToggleMethod()
         {
             try
             { 
-                // HudVoiceIndicator.enabled = !value;
-                // if (!value) return;
-                // HudVoiceIndicator.field_Private_Image_0.enabled = false; //Credits to Psychloor
-                // HudVoiceIndicator.field_Private_Image_1.enabled = false;
+                if (!m_UIManagerStarted) return;
 
-                if (value) // We don't want to cache initial scales as other mods in the future might initially scale it to zero on Init.
+                if (ToggleMic.Value) // We don't want to cache initial scales as other mods in the future might initially scale it to zero on Init.
                 {
                     VoiceDot.localScale = Vector3.zero;
                     VoiceDotDisabled.localScale = Vector3.zero;
