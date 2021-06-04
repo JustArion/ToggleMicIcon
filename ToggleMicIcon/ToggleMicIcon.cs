@@ -14,7 +14,7 @@ namespace ToggleMicIcon
         internal const string DownloadLink = "https://github.com/Arion-Kun/ToggleMicIcon/releases";
         internal const string Name = "ToggleMicIcon";
 
-        internal const string Version = "1.0.6";
+        internal const string Version = "1.0.7";
     }
     internal sealed class ToggleMicIconClass : MelonMod 
     {
@@ -60,10 +60,9 @@ namespace ToggleMicIcon
         }
         private static bool m_UIManagerStarted;
 
-        private bool VersionCheck(string modVersion, string greaterOrEqual)
+        private static bool VersionCheck(string modVersion, string greaterOrEqual)
         {
-            if (modVersion == greaterOrEqual) return true;
-            if (Version.TryParse(modVersion, out var owo) && Version.TryParse(greaterOrEqual, out var uwu)) return owo.CompareTo(uwu) < 0;
+            if (Version.TryParse(modVersion, out var owo) && Version.TryParse(greaterOrEqual, out var uwu)) return uwu.CompareTo(owo) <= 0;
             return false;
         }
 
@@ -77,9 +76,10 @@ namespace ToggleMicIcon
         private byte? CheckCount = 0;
         private IEnumerator VRCUiManagerCoroutine()
         {
+            MelonLogger.Msg("Starting VRCUiManagerCoroutine.");
             for (;;)
             {
-                while (typeof(VRCUiManager).GetProperties().FirstOrDefault(p=> p.PropertyType == typeof(VRCUiManager)) == null) yield return null;
+                while (Object.FindObjectOfType<HudVoiceIndicator>() == null) yield return new WaitForSeconds(1);
                 if (m_UIManagerStarted) yield break;
                 m_UIManagerStarted = true;
                 if (HudVoiceIndicator == null)
