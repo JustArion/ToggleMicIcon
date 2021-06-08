@@ -1,7 +1,10 @@
 ﻿using MelonLoader;
 using System;
 using System.Collections;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using UIExpansionKit.API;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -30,27 +33,41 @@ namespace ToggleMicIcon
             ToggleMic = (MelonPreferences_Entry<bool>) cat.CreateEntry("DisableMic", false, "Disable Microphone Icon");
             
             MelonLogger.Msg("Settings can be configured in UserData\\modprefs.ini or through 'UI Expansion Kit'");
-
+            
             UIManager();
 
         }
 
         private void UIManager()
         {
+
             if (MelonHandler.Mods.Any(mod => mod.Info.Name == "UI Expansion Kit" && VersionCheck(mod.Info.Version, "0.3.0")))
             {
-                UIExpansionKit.API.ExpansionKitApi.OnUiManagerInit += () => { MelonCoroutines.Start(VRCUiManagerCoroutine()); };
-                MelonLogger.Msg("Utilizing UI Expansion Kit Event.");
+                try
+                {
+                    // This needs to be its own method as just Invoking this UiManager method will cause a FileLoadException on Start when the method gets called.
+                    SubscribeUIX(); 
+                }
+                catch (FileLoadException) { }
             }
             else if (MelonHandler.Mods.Any(mod => mod.Info.Name == "UI Expansion Kit"))
             {
                 MelonCoroutines.Start(VRCUiManagerCoroutine());
+                MelonLogger.Msg("Looking for UiManagerInit Manually");
             }
             else
             {
                 UIXAdvert();
                 MelonCoroutines.Start(VRCUiManagerCoroutine());
+                MelonLogger.Msg("Looking for UiManagerInit Manually");
             }
+
+        }
+
+        private void SubscribeUIX()
+        {
+            ExpansionKitApi.OnUiManagerInit += () => { MelonCoroutines.Start(VRCUiManagerCoroutine()); };
+            MelonLogger.Msg("Utilizing UI Expansion Kit Event.");
         }
         private void UIXAdvert()
         {
@@ -58,9 +75,9 @@ namespace ToggleMicIcon
             MelonLogger.Warning("The mod can be found on Github at: https://github.com/knah/VRCMods/releases");
             MelonLogger.Warning("or alternatively under the #finished-mods section in the VRChat Modding Group Discord.");
         }
-        private static bool m_UIManagerStarted;
+        private bool m_UIManagerStarted;
 
-        private static bool VersionCheck(string modVersion, string greaterOrEqual)
+        private bool VersionCheck(string modVersion, string greaterOrEqual)
         {
             if (Version.TryParse(modVersion, out var owo) && Version.TryParse(greaterOrEqual, out var uwu)) return uwu.CompareTo(owo) <= 0;
             return false;
@@ -101,7 +118,7 @@ namespace ToggleMicIcon
 
         public override void OnPreferencesSaved() => ToggleMethod();
 
-        private static void ToggleMethod()
+        private void ToggleMethod()
         {
             try
             { 
