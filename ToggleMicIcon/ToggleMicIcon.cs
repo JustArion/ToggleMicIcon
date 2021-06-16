@@ -17,7 +17,7 @@ namespace ToggleMicIcon
         internal const string DownloadLink = "https://github.com/Arion-Kun/ToggleMicIcon/releases";
         internal const string Name = "ToggleMicIcon";
 
-        internal const string Version = "1.0.7";
+        internal const string Version = "1.0.8";
     }
     internal sealed class ToggleMicIconClass : MelonMod 
     {
@@ -34,91 +34,47 @@ namespace ToggleMicIcon
             
             MelonLogger.Msg("Settings can be configured in UserData\\modprefs.ini or through 'UI Expansion Kit'");
             
-            UIManager();
-
+            if (MelonHandler.Mods.All(mod => mod.Info.Name != "UI Expansion Kit")) UIXAdvert();
         }
-
-        private void UIManager()
-        {
-
-            if (MelonHandler.Mods.Any(mod => mod.Info.Name == "UI Expansion Kit" && VersionCheck(mod.Info.Version, "0.3.0")))
-            {
-                try
-                {
-                    // This needs to be its own method as just Invoking this UiManager method will cause a FileLoadException on Start when the method gets called.
-                    SubscribeUIX(); 
-                }
-                catch (FileLoadException) { }
-            }
-            else if (MelonHandler.Mods.Any(mod => mod.Info.Name == "UI Expansion Kit"))
-            {
-                MelonCoroutines.Start(VRCUiManagerCoroutine());
-                MelonLogger.Msg("Looking for UiManagerInit Manually");
-            }
-            else
-            {
-                UIXAdvert();
-                MelonCoroutines.Start(VRCUiManagerCoroutine());
-                MelonLogger.Msg("Looking for UiManagerInit Manually");
-            }
-
-        }
-
-        private void SubscribeUIX()
-        {
-            ExpansionKitApi.OnUiManagerInit += () => { MelonCoroutines.Start(VRCUiManagerCoroutine()); };
-            MelonLogger.Msg("Utilizing UI Expansion Kit Event.");
-        }
-        private void UIXAdvert()
+        
+        
+        private static void UIXAdvert()
         {
             MelonLogger.Warning("'UI Expansion Kit' was not detected and could lead to a less optimal experience.");
             MelonLogger.Warning("The mod can be found on Github at: https://github.com/knah/VRCMods/releases");
             MelonLogger.Warning("or alternatively under the #finished-mods section in the VRChat Modding Group Discord.");
         }
-        private bool m_UIManagerStarted;
+        private static bool m_UIManagerStarted;
 
-        private bool VersionCheck(string modVersion, string greaterOrEqual)
-        {
-            if (Version.TryParse(modVersion, out var owo) && Version.TryParse(greaterOrEqual, out var uwu)) return uwu.CompareTo(owo) <= 0;
-            return false;
-        }
+        // private bool VersionCheck(string modVersion, string greaterOrEqual)
+        // {
+        //     if (Version.TryParse(modVersion, out var owo) && Version.TryParse(greaterOrEqual, out var uwu)) return uwu.CompareTo(owo) <= 0;
+        //     return false;
+        // }
 
-        private void UiManagerInit()
+        private new static void VRChat_OnUiManagerInit()
         {
             m_UIManagerStarted = true;
             ToggleMethod();
             MelonLogger.Msg("Sucessfully Initialized!");
         }
-        
-        private byte? CheckCount = 0;
-        private IEnumerator VRCUiManagerCoroutine()
-        {
-            MelonLogger.Msg("Starting VRCUiManagerCoroutine.");
-            for (;;)
-            {
-                while (Object.FindObjectOfType<HudVoiceIndicator>() == null) yield return new WaitForSeconds(1);
-                if (m_UIManagerStarted) yield break;
-                m_UIManagerStarted = true;
-                if (HudVoiceIndicator == null)
-                {
-                    CheckCount++;
-                    if (CheckCount >= 30)
-                    {
-                        MelonLogger.Warning("Mic Icon Indicator Was Not Found");
-                        yield break;
-                    }
-                    yield return new WaitForSeconds(1);
-                    continue;
-                }
-                UiManagerInit();
-                CheckCount = null;
-                yield break;
-            }
-        }
 
+        
+        [Credit("DDAkebono", "https://github.com/ddakebono/BTKSAImmersiveHud/blob/8b5968a7cf35398217ad14b86b316dc93fb705fe/BTKSAImmersiveHud.cs#L52")]
+        [Modified]
+        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+        {
+            if (scenesLoaded is null or > 2) return;
+            scenesLoaded++;
+            if (scenesLoaded != 2) return;
+            VRChat_OnUiManagerInit();
+            scenesLoaded = null;
+        }
+        private static byte? scenesLoaded = 0;
+        
         public override void OnPreferencesSaved() => ToggleMethod();
 
-        private void ToggleMethod()
+        private static void ToggleMethod()
         {
             try
             { 
