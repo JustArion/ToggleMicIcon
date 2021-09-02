@@ -1,10 +1,6 @@
-﻿using MelonLoader;
+using MelonLoader;
 using System;
-using System.Collections;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using UIExpansionKit.API;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -17,20 +13,27 @@ namespace ToggleMicIcon
         internal const string DownloadLink = "https://github.com/Arion-Kun/ToggleMicIcon/releases";
         internal const string Name = "ToggleMicIcon";
 
-        internal const string Version = "1.0.8";
+        internal const string Version = "1.0.9";
     }
     internal sealed class ToggleMicIconClass : MelonMod 
     {
         private static MelonPreferences_Entry<bool> ToggleMic;
         private static HudVoiceIndicator cachedVoiceIndicator;
         private static HudVoiceIndicator HudVoiceIndicator => cachedVoiceIndicator ??= Object.FindObjectOfType<HudVoiceIndicator>();
-        private static Transform VoiceDot => HudVoiceIndicator.gameObject.transform.Find("VoiceDot");
-        private static Transform VoiceDotDisabled => HudVoiceIndicator.gameObject.transform.Find("VoiceDotDisabled");
 
+        private static Transform cachedVoiceDot;
+        private static Transform VoiceDot => cachedVoiceDot ??= HudVoiceIndicator.transform.Find("VoiceDot");
+        
+        private static Transform cachedVoiceDotDisabled;
+        private static Transform VoiceDotDisabled => cachedVoiceDotDisabled ??= HudVoiceIndicator.transform.Find("VoiceDotDisabled");
+        
+        
         public override void OnApplicationStart()
         {
-            var cat = MelonPreferences.CreateCategory("ToggleMicIcon", "Toggle Mic Icon");
-            ToggleMic = (MelonPreferences_Entry<bool>) cat.CreateEntry("DisableMic", false, "Disable Microphone Icon");
+            ToggleMic = MelonPreferences.CreateCategory("ToggleMicIcon", "Toggle Mic Icon")
+                .CreateEntry("DisableMic", false, "Disable Microphone Icon");
+            
+            ToggleMic.OnValueChanged += (_, b1) => { ToggleMethod(b1);};
             
             MelonLogger.Msg("Settings can be configured in UserData\\modprefs.ini or through 'UI Expansion Kit'");
             
@@ -44,18 +47,12 @@ namespace ToggleMicIcon
             MelonLogger.Warning("The mod can be found on Github at: https://github.com/knah/VRCMods/releases");
             MelonLogger.Warning("or alternatively under the #finished-mods section in the VRChat Modding Group Discord.");
         }
-        private static bool m_UIManagerStarted;
+        private static bool _UIManagerStarted;
 
-        // private bool VersionCheck(string modVersion, string greaterOrEqual)
-        // {
-        //     if (Version.TryParse(modVersion, out var owo) && Version.TryParse(greaterOrEqual, out var uwu)) return uwu.CompareTo(owo) <= 0;
-        //     return false;
-        // }
-
-        private new static void VRChat_OnUiManagerInit()
+        private static void VRChat_OnUiManagerInit()
         {
-            m_UIManagerStarted = true;
-            ToggleMethod();
+            _UIManagerStarted = true;
+            ToggleMethod(ToggleMic.Value);
             MelonLogger.Msg("Sucessfully Initialized!");
         }
 
@@ -64,23 +61,22 @@ namespace ToggleMicIcon
         [Modified]
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
-            if (scenesLoaded is null or > 2) return;
-            scenesLoaded++;
-            if (scenesLoaded != 2) return;
+            if (_ScenesLoaded is null or > 2) return;
+            _ScenesLoaded++;
+            if (_ScenesLoaded != 2) return;
             VRChat_OnUiManagerInit();
-            scenesLoaded = null;
+            _ScenesLoaded = null;
         }
-        private static byte? scenesLoaded = 0;
+        private static byte? _ScenesLoaded = 0;
         
-        public override void OnPreferencesSaved() => ToggleMethod();
+        // public override void OnPreferencesSaved() => ToggleMethod();
 
-        private static void ToggleMethod()
+        private static void ToggleMethod(bool hide)
         {
+            if (!_UIManagerStarted) return;
             try
-            { 
-                if (!m_UIManagerStarted) return;
-
-                if (ToggleMic.Value) // We don't want to cache initial scales as other mods in the future might initially scale it to zero on Init.
+            {
+                if (hide) // We don't want to cache initial scales as other mods in the future might initially scale it to zero on Init.
                 {
                     VoiceDot.localScale = Vector3.zero;
                     VoiceDotDisabled.localScale = Vector3.zero;
